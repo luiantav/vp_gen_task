@@ -1,0 +1,1606 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>spacebloom3</title>
+    <script src="jspsych/jspsych.js"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.0.0"></script>
+    <script src="https://www.hes.kyushu-u.ac.jp/~kurokid/QUEST/dist/jsQUEST.js"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-fullscreen@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-browser-check@1.0.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-virtual-chinrest@2.0.2"></script>
+    <script src="https://unpkg.com/bowser@2.7.0/es5.js"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-audio-keyboard-response@1.0.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-audio-button-response@1.1.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-image-slider-response@1.1.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-slider-response@1.1.1"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-multi-choice@1.1.1"></script>
+    <script src="jspsych/plugin-image-slider-response.js"></script>
+    
+    <!-- 1) Import jQuery, HeadphoneCheck.js (minified) and HeadphoneCheck.css from McDermott S3 server and  -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://s3.amazonaws.com/mcd-headphone-check/v1.0/src/HeadphoneCheckStyle.css">
+
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.2"></script>
+    <script type="text/javascript" src="functions.js" type="application/json"></script>
+    <script type="text/javascript" src="timeline_variables.js" type="application/json"></script>
+    <script type="text/javascript" src="instructions.js" type="application/json"></script>
+    <script type="text/javascript" src="Schedules/schedule.json" type="application/json"></script>
+    <script type="text/javascript" src="attention_check.js" type="application/json"></script>
+    <script type="text/javascript" src="../../allparam.json" type="application/json"></script>
+    <script type="text/javascript" src="HeadphoneCheck.min.js" type="application/json"></script>
+
+    <link href="jspsych/jspsych.css" rel="stylesheet" type="text/css" />
+
+    <style>
+        body {
+          background-color: rgb(211, 211, 211);
+          color: black;
+        }
+      </style>
+  </head>
+  
+  <body>
+    <div id="hc-container"></div>
+    <div id="consentForm">
+    <h1>Welcome</h1>
+    <h2> Study Information and Statement of informed Consent</h2>
+    <h3> 1. Aim of the study </h3> 
+    This study is a research project of the Max Planck Institute (MPI) for Human Development. The purpose of this study is to investigate the role of uncertainty in aversive learning.
+    <h3> 2. Procedure and content of the study </h3>
+    This is session three of three. In this session you will be asked to perform a simple task in which you will be asked to compare different shapes and learn about their properties. The task will take approximately 40 minutes. You will be reimbursed &pound6 for your time. Additionally, there is a &pound2 bonus for completing the task  (i.e., the total reimbursement is max. &pound8). Please only participate from a laptop computer (no mobiles, no tablets) and if your screen is at least 13-inch diagonal. This study further requires you to use headphones and enable the audio on your device. Please note that you will be hearing female screams as part of the study on this and on the next session. Although the volume will be calibrated at the beginning of the task, some people still perceive the screams as very unpleasant. Please be aware of this before you decide to participate. 
+    <h3> 3. What will happen to the data collected? </h3>
+    The data collected will be used for research purposes only. The study data will be stored under an individual code number. After payment, the key linking your Prolific ID to the individual anonymised code number will be deleted. This makes it impossible to link the study data to you. The study data may be shared with cooperation partners for collaborative analysis. The study data may also be made publicly accessible via research databases or scientific publications (typically via the Internet). This makes it possible for other researchers to check or replicate the results and enhances the quality of scientific research. The study data may also be used for new re-search questions going beyond the purposes of this particular study. Study data are only transferred or made publicly accessible without Prolific IDs or any data in which persons are identifiable.
+    <h3> 4. Participation is voluntary </h3>
+    Participation in this study is voluntary. You may withdraw from the study at any time. You may also withdraw your consent to data processing and usage at any time before payment. To do so, please contact neuroexperiments@mpib-berlin.mpg.de. Please note that data collected from you can no longer be associated with you, once your Prolific ID is deleted from the study data after payment.
+    <h3> 5. Consent </h3>
+    This session takes an average of 40 minutes. You will receive a compensation of &pound6 for your time, plus a completion bonus of &pound2. If you have completed session one and two you will also receive a &pound4 bonus for them. Please understand that we can only pay the compensation if you finish the session. We will ask you to do the task using full screen mode. If you exit the full screen, this will be considered as quitting the experiment and we can unfortunately not pay you. If you do not consent to the conditions outlined above, please exit the full screen now to end the experiment. 
+
+    <form>
+      <input type="checkbox" id="consent" name="consent" required>
+      <label for="consent">I have read and understood the conditions. I consent to participate in the study and agree to the collection, storage, and use of my data as described above.</label>
+      <br>
+      <button type="button" id="continueBtn" disabled>Continue</button>
+    </form>
+  </div>
+
+  <div id="headphoneCheck" style="display: none;">
+    <h1>Headphone Check</h1>
+    <p>In order to be able to complete this study you have to wear headphones at all times. Please put on your headphones now.</p>
+    <p>When you are ready, click the Start button below to begin the headphone check.</p>
+    <button type="button" id="startBtn">Start</button>
+  </div>
+
+  </body>
+  <script>
+
+
+var jsPsych = initJsPsych({
+        timeline: timeline,
+        show_progress_bar: false,
+        override_safe_mode: true,
+        on_finish: function() {
+        completion_code = 'CBLJ5C7U' //update with prolific code
+        final_save3()
+        },
+        on_interaction_data_update: function (data) { //if participant exits fullscreen
+      if (data.event == 'fullscreenexit' && should_be_in_fullscreen) {
+        console.log('exited fullscreen');
+        console.log(jsPsych.getDisplayElement())
+        jsPsych.getDisplayElement().style.visibility = 'hidden'; // hide the contents of the current trial
+        jsPsych.pauseExperiment()
+        jsPsych.getDisplayElement().insertAdjacentHTML('beforebegin',
+          '<div id="message-div" style="margin: auto;top: 50%; left: 50%; margin-right: -50%; text-align: center;">' +
+          '<p>Please remain in fullscreen mode during the task.</p>' +
+          '<p>When you click the button below, you will enter fullscreen mode.</p>' +
+          '<button id="jspsych-fullscreen-btn" class="jspsych-btn">Continue</button>' +
+          '<button id="jspsych-end_everything" class="jspsych-btn">Leave task</button></div>');
+        // call the request fullscreen function when the button is clicked
+        document.querySelector('#jspsych-fullscreen-btn').addEventListener('click', function () {
+          var element = document.documentElement;
+          if (element.requestFullscreen) {
+            element.requestFullscreen();
+          } else if (element.mozRequestFullScreen) {
+            element.mozRequestFullScreen();
+          } else if (element.webkitRequestFullscreen) {
+            element.webkitRequestFullscreen();
+          } else if (element.msRequestFullscreen) {
+            element.msRequestFullscreen();
+          }
+        });
+        document.querySelector('#jspsych-end_everything').addEventListener('click', function () {
+          completion_code = 'INTENTIONALLY_ENDED'
+          //console.log(completion_code)
+          document.getElementById("message-div").innerHTML = "Experiment ended.";
+
+          final_save3()
+
+        });
+      }
+      if (data.event == 'fullscreenenter') {
+        console.log('entered fullscreen');
+        var msg_div = document.querySelector('#message-div');
+        if (msg_div !== null) {
+          // remove the message
+          msg_div.remove();
+          // show the contents of the current trial again
+          jsPsych.getDisplayElement().style.visibility = 'visible';
+          jsPsych.resumeExperiment()
+        }
+      }
+    },
+    on_close: function () { // send data if window is closed before end
+      jsPsych.data
+                .get()
+                .localSave(
+                    'csv',
+                    'titration_data.csv'
+                );
+      completion_code = 'CLOSED_WINDOW'
+      final_save3()
+    }
+    });
+
+
+// get browser info 
+const browser = bowser.getParser(window.navigator.userAgent);
+  br = browser.getBrowser() //name + version
+  os = browser.getOS() // name + version
+  console.log('browser', br,os)
+
+var browser_check = {
+    type: jsPsychHtmlKeyboardResponse,
+    trial_duration: 5000,
+    stimulus: 'Please use Google Chrome or Firefox to run the experiment.<br>'+
+    'You will be redirected to Prolific and you can start the experiment again using one of these two browsers.',
+    on_finish: function () { //
+        completion_code = 'notsupported'
+        window.location.replace("https://app.prolific.co/submissions/complete?cc="+completion_code);
+      },
+    data: { type: 'initial_browser_check' }
+  };
+  
+  var if_browser = {
+    timeline: [browser_check],
+    conditional_function: function () {
+      if (!(br.name == "Chrome" || br.name == 'Firefox')) {
+        return true;
+      } else { return false; }
+    }
+  }
+
+// load data from session 1 
+
+  var prolific_pid = jsPsych.data.getURLVariable('PROLIFIC_PID');
+  var prolific_completion_code = 'start' //assigned by Prolific
+  //var prolific_pid = 'lala'
+  pid = 'PID'+ prolific_pid 
+  console.log(pid)
+  var import_param = JSON.parse(eval(pid)); //read data from session 1 from json
+  console.log(prolific_pid, pid, import_param)
+
+  var sch = JSON.parse(data); // read in python-generated JSON schedule and convert to JS Variable
+  var imported = import_param[prolific_pid] // match to data from session 1
+  var imported_schedule = imported.schedule
+  var param = sch[imported_schedule]; 
+  console.log(imported, imported_schedule, param)
+
+  var ID = imported.schedule // schedule, assign manually? should be same as sequence
+  var subject_id = imported.id
+  var conditions = [param.s1,param.s2,param.s3, param.s4, param.s5, param.s6]
+  n_conditions = 6
+  var ou_levels = [param.r1, param.r2,param.r3, param.r4,param.r5, param.r6]
+  var pu_levels = [param.p1, param.p2,param.p3, param.p4,param.p5, param.p6]
+  var cols = [param.col1, param.col2,param.col3, param.col4,param.col5, param.col6]
+console.log(conditions, cols)
+
+// assign keys 
+same = param.key_same
+different = param.key_different
+
+// add to data 
+jsPsych.data.addProperties({
+    subject: subject_id,
+    prolific_id: prolific_pid, //prolific_pid,
+    conditions: conditions,
+    schedule: imported_schedule,
+    sequence: imported_schedule, 
+    browser_name: br.name,
+    browser_version: br.version,
+    os_name: os.name,
+    os_version: os.version,
+    screen_resolution: screen.width + ' x ' + screen.height,
+    window_resolution: window.innerWidth + ' x ' + window.innerHeight,
+    key_same: same,
+    key_different: different,
+    //prolific_pid: prolific_pid
+  })
+console.log(screen.width, screen.height)
+
+
+// get step data
+var initial_steps = imported.steps // form: steps["condition_5"]
+console.log(imported.steps, initial_steps,)
+
+//Average steps of same PU condition 
+//low
+const idx_low = pu_levels.reduce((acc, pu_levels, index) => pu_levels === 0 ? [...acc, index] : acc, [])
+stp_low = [initial_steps["condition_" + conditions[idx_low[0]]], initial_steps["condition_" + conditions[idx_low[1]]], initial_steps["condition_" + conditions[idx_low[2]]]]
+avg_low = Math.round(add(stp_low)/3)
+
+const idx_high= pu_levels.reduce((acc, pu_levels, index) => pu_levels === 1 ? [...acc, index] : acc, [])
+stp_high = [initial_steps["condition_" + conditions[idx_high[0]]], initial_steps["condition_" + conditions[idx_high[1]]], initial_steps["condition_" + conditions[idx_high[2]]]]
+avg_high = Math.round(add(stp_high)/3)
+
+console.log(idx_low, idx_high, stp_low,  avg_low, stp_high, avg_high )
+
+// Kaernbach 
+var step_min = 1; 
+var step_max = 199; //means highest possible rho
+var step_decrease_c1 = 1
+var step_increase_c1 = 4
+var step_decrease_c2 = 2 
+var step_increase_c2 = 3 //9
+
+
+
+// timing variables 
+// demo and titration
+param.target = 1500
+param.scramble = 500
+param.comparison = 1500
+param.response = 2500
+param.feedback = 2000
+param.silence = 1000 // duration of scream!
+
+// learning 
+param.cs_plus = 1500
+param.gen = 2000
+
+// stimulus variables 
+param.size_deg = 9 //8.7 //7 //8.82 // corresponds to approx. 350 px on my screen at distance 45 cm 
+param.size = 500// 450 //350 // before updating 350 corresponds to Norbury 12.5 radius for rho 1 on my screen 
+param.length_block = 20 //quest
+param.n_blocks_demo = 1
+param.n_blocks_kaern = 1 // one to repeat!
+param.n_blocks_learn = 2
+param.n_blocks_gen = 2
+param.n_blocks_snap = 2
+
+
+cs_plus = 100 //note that stimulus space is defined from 0-200
+r_rates = [25,50,75]
+
+
+
+//add parameters to output data
+var session_parameters = {
+    parameters: param,
+  }
+
+var add_data = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: '',
+    trial_duration: 0.1,
+    data: {session_parameters}
+  };
+
+console.log(param)
+
+var should_be_in_fullscreen = false;
+var fullscreen = {
+    type: jsPsychFullscreen,
+    fullscreen_mode: true,
+    on_start: function () {
+      should_be_in_fullscreen = true; // once this trial starts, the participant should be in fullscreen
+    }
+  };
+
+var initial_warning = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: '<p>Please do NOT exit the fullscreen during the entire experiment! <br>' +
+      'If you exit fullscreen mode during the experiment you will be redirected to Prolific and cannot continue with the experiment. </p>',
+    data: { stimulus_type: 'instruction' }
+  };
+
+var distance_check = {
+  type: jsPsychVirtualChinrest,
+  blindspot_reps: 3,
+  resize_units: "none",
+  item_path: "img/card.png",
+};
+
+var update_size = { //resize dots and aperture
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: '',
+    trial_duration: 0.01,
+    data: { stimulus_type: 'resize' },
+    on_start: function () {
+      conversion_factor = jsPsych.data.get().filter({ trial_type: 'virtual-chinrest' }).values()[0].px2deg
+      pxmm = jsPsych.data.get().filter({ trial_type: 'virtual-chinrest' }).values()[0].px2mm
+      distance_to_screen = jsPsych.data.get().filter({ trial_type: 'virtual-chinrest' }).values()[0].view_dist_mm
+      item_mm = jsPsych.data.get().filter({ trial_type: 'virtual-chinrest' }).values()[0].item_width_mm
+      item_px = jsPsych.data.get().filter({ trial_type: 'virtual-chinrest' }).values()[0].item_width_px
+      item_deg = jsPsych.data.get().filter({ trial_type: 'virtual-chinrest' }).values()[0].item_width_deg
+
+      param.size = param.size_deg * conversion_factor
+
+      console.log(conversion_factor, param.size)
+      return param.size;
+    },
+    on_finish: function () {
+      jsPsych.data.addProperties({ distance_to_screen });
+      completion_code = 'DISTANCE_OK';
+      console.log(completion_code)
+    }
+  }
+
+
+var final_comment = {
+    type: jsPsychSurveyText,
+    questions: [
+    {prompt: 'Is there something that you would like to tell us? <br>'}
+  ],
+    data: { type: 'final_question' }
+};
+
+var final_saving = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: '',
+    trial_duration: 4000, 
+    on_start: function() {
+      document.body.style.backgroundImage = "url('img/cloud.png')"
+      document.body.style.backgroundSize = '100% 100%';
+      document.body.style.backgroundRepeat = 'no-repeat'},
+    on_finish: function() {
+      document.body.style.backgroundImage = "url('img/cloud.png')"
+      document.body.style.backgroundSize = '100% 100%';
+      document.body.style.backgroundRepeat = 'no-repeat'
+    }
+    };
+
+
+// attention audio
+
+
+var attention_audio = {
+    type: jsPsychAudioButtonResponse,
+    stimulus: function(){
+      var all_clicks = range(1, 12); //pick beginning or end
+        click_sound = jsPsych.randomization.sampleWithReplacement(all_clicks, 1); // randomly pick one trial for uncertainty rating
+        attention_audio.data.sound = click_sound
+      return 'screams/click'+click_sound +'.wav'
+    },
+    choices: ['0','1','2','3','4','5'],
+    prompt: "<p>ATTENTION CHECK <br> How many clicks did you hear?</p>",
+    data: {stimulus_type: 'click'}
+};
+
+
+/*
+var attention_audio = {
+    type: jsPsychHtmlKeyboardResponse,
+    trial_duration: param.silence,
+    response_ends_trial: true,    
+    stimulus: 'placeholder for clicks' ,
+    data: {
+      clicks: 'placeholder',
+    },
+};
+*/
+
+
+var if_attention_start = {
+    timeline: [attention_audio],
+    conditional_function: function () {
+      if (attention_check == 0) {
+            return true;
+          } else { return false; }
+          
+  }}
+
+var if_attention_end = {
+    timeline: [attention_audio],
+    conditional_function: function () {
+      if (attention_check == 1) {
+            return true;
+          } else { return false; }
+          
+  }}
+
+
+// preload
+var imm = []
+for (s = 0; s <= n_conditions-1; s++) { 
+  for (r = 1; r <= 199; r++) { 
+    new_im = 'Shapes/shapes_png/F' + r + '_S'+ conditions[s] + '.png'
+    imm.push(new_im);
+}}
+
+var scr = ['Shapes/shapes_png/scramble_S' + conditions[0] + '.png','Shapes/shapes_png/scramble_S' + conditions[1] + '.png', 'Shapes/shapes_png/scramble_S' + conditions[2] + '.png', 'Shapes/shapes_png/scramble_S' + conditions[3] + '.png', 'Shapes/shapes_png/scramble_S' + conditions[4] + '.png', 'Shapes/shapes_png/scramble_S' + conditions[5] + '.png']
+imm.push(scr)
+
+var preload = {
+    type: jsPsychPreload,
+    images: imm,
+}
+
+var preload_sound = {
+    type: jsPsychPreload,
+    audio: ['screams/click1.wav','screams/click2.wav','screams/click3.wav','screams/click4.wav','screams/click5.wav','screams/click6.wav','screams/click7.wav','screams/click8.wav','screams/click9.wav','screams/click10.wav','screams/click11.wav','screams/click12.wav']
+}
+
+var preload_img = {
+    type: jsPsychPreload,
+    images: ['img/planets2.png', 'img/sess3.png', 'img/C3.png','img/C4.png', 'img/C5.png','img/C6.png','img/C9.png','img/C12.png',],
+}
+
+
+/* ---- Instructions (other instructions in instructions.js ----*/
+instruction_task_repeat['stimulus'] = instruction_task_repeat['stimulus'].replace('$same', same).replace('$different', different)
+instruction_intro['stimulus'] = instruction_intro['stimulus'].replace('$key1', same).replace('$key2', different)
+instruction_demo_cue['stimulus'] = instruction_demo_cue['stimulus'].replace('$key1', same).replace('$key2', different)
+instruction_keys2['stimulus'] = instruction_keys2['stimulus'].replace('$key1', same).replace('$key2', different)
+instruction_keys3['stimulus'] = instruction_keys3['stimulus'].replace('$key1', same)
+instruction_keys4['stimulus'] = instruction_keys4['stimulus'].replace('$key2', different)
+instruction_task2b['stimulus'] = instruction_task2b['stimulus'].replace('$key1', same).replace('$key2', different)
+instruction_task4['stimulus'] = instruction_task4['stimulus'].replace('$key1', same).replace('$key2', different)
+instruction_task7['stimulus'] = instruction_task7['stimulus'].replace('$key1', same).replace('$key2', different)
+
+instr_sess2_13['stimulus'] = instr_sess2_13['stimulus'].replace('$planet1', cols[3])
+instr_sess2_14b['stimulus'] = instr_sess2_14b['stimulus'].replace('$planet1', cols[3])
+instr_sess2_16['stimulus'] = instr_sess2_16['stimulus'].replace('$planet2', cols[4])
+instr_sess2_18['stimulus'] = instr_sess2_18['stimulus'].replace('$planet3', cols[5])
+instr_sess2_20['stimulus'] = instr_sess2_20['stimulus'].replace('$planet4', cols[3])
+instr_sess2_22['stimulus'] = instr_sess2_22['stimulus'].replace('$planet5', cols[4])
+instr_sess2_24['stimulus'] = instr_sess2_24['stimulus'].replace('$planet6', cols[5])
+
+var instr_sess2_12 = {
+    type: jsPsychHtmlKeyboardResponse,
+    response_ends_trial: true,
+    stimulus: "<img src='img/C" + conditions[3] + ".png' width='150' height='150'></img>"+
+    '<br>'+
+    '<br>'+
+    'You will be heading to the ' + cols[3] + ' planet first. Please be ready. >>>',
+    data: {
+        stimulus_type: "instructions"
+      }
+    };
+
+  var instr_sess2_15 = {
+    type: jsPsychHtmlKeyboardResponse,
+    response_ends_trial: true,
+    stimulus:  "<img src='img/C" + conditions[4] + ".png' width='150' height='150'></img>"+
+    '<br>'+
+    '<br>'+
+    'The next planet is the '+ cols[4] +' planet.' +
+    '<br>' + 'You will again learn about the super space flowers of the upcoming planet and then land to complete your mission.',
+    data: {
+        stimulus_type: "instructions"
+      }
+    };
+
+  var instr_sess2_17 = {
+    type: jsPsychHtmlKeyboardResponse,
+    response_ends_trial: true,
+    stimulus: "<img src='img/C" + conditions[5] + ".png' width='150' height='150'></img>" +
+    '<br>'+
+    '<br>'+
+    'You are approaching the ' + cols[5] + ' planet next. Get ready to learn about the super spaceflowers of the ' + cols[5] + ' planet. >>>',
+    data: {
+        stimulus_type: "instructions"
+      }
+    };
+
+  var instr_sess2_19 = {
+    type: jsPsychHtmlKeyboardResponse,
+    response_ends_trial: true,
+    stimulus: "<img src='img/C" + conditions[3] + ".png' width='150' height='150'></img>"+
+    '<br>'+
+    '<br>'+
+    'Next, you are flying to the ' + cols[3] + ' planet. Get ready to learn about the super spaceflowers of this planet. >>>', 
+    data: {
+        stimulus_type: "instructions"
+      }
+    };
+
+  var instr_sess2_21 = {
+    type: jsPsychHtmlKeyboardResponse,
+    response_ends_trial: true,
+    stimulus: "<img src='img/C" + conditions[4] + ".png' width='150' height='150'></img>"+
+    '<br>'+
+    '<br>'+
+    'There are two more planets left to complete your mission.' +
+    '<br>' + 'You are approaching the ' + cols[4] + ' planet now. Get ready to learn about the super spaceflowers of this planet. >>>',
+    data: {
+        stimulus_type: "instructions"
+      }
+    };
+
+  var instr_sess2_23 = {
+    type: jsPsychHtmlKeyboardResponse,
+    response_ends_trial: true,
+    stimulus: "<img src='img/C" + conditions[5] + ".png' width='150' height='150'></img>"+
+    '<br>'+
+    '<br>'+
+    'You are approaching the final planet. Get ready to learn about the super space flowers of the ' + cols[5] + ' planet. >>>',
+    
+    data: {
+        stimulus_type: "instructions"
+      }
+    };
+
+
+
+/* ------ BUILD PROTOCOL ------ */
+
+var protocol = {}
+protocol['demo_C1' + '_B1'] = build(parse('Demo_C1' + '_1_ID' + ID))
+
+for (c = 1; c <= n_conditions; c++) {
+  protocol['kaern_C' + c + '_B1'] = build(parse('Kaern_C' + c + '_1_ID'+ ID))
+}
+
+for (c = 1; c <= n_conditions; c++) {
+  for (b = 1; b <= param.n_blocks_learn; b++) {
+    protocol['learn_C' + c + '_B' + b] = buildLearning(parseLearning('Learn_C' + c + '_' + b + '_ID'+ ID))
+  }
+}
+
+for (c = 1; c <= n_conditions; c++) {
+  for (b = 1; b <= param.n_blocks_gen; b++) {
+    protocol['gen_C' + c + '_B' + b] = buildGeneralise(parseGeneralise('Gen_C' + c + '_' + b + '_ID'+ ID))
+  }
+}
+
+for (c = 1; c <= n_conditions; c++) {
+  for (b = 1; b <= param.n_blocks_snap; b++) {
+    protocol['snap_C' + c + '_B' + b] = buildSnapshot(parseSnapshot('Snap_C' + c + '_' + b + '_ID'+ ID))
+  }
+}
+
+console.log(protocol)
+
+
+/* ------ REPEAT DEMO ------ */
+// prep
+instruction_demo_cue['stimulus'] = instruction_demo_cue['stimulus'].replace('$key1', same).replace('$key2', different)
+// define stimuli
+var stimulus_demo_target= {
+    type: jsPsychHtmlKeyboardResponse,
+    trial_duration: param.target,
+    response_ends_trial: false,
+    on_start: function(stimulus_target) {
+    n_spikes = conditions[jsPsych.timelineVariable("condition")]
+    stimulus_target.stimulus = "<img src='Shapes/shapes_png/F" + jsPsych.timelineVariable('rho') + "_S"+n_spikes + ".png' width='"+ param.size + "' height='" + param.size + "'></img>"
+  },
+    stimulus: '' ,
+    data: {
+      rho: jsPsych.timelineVariable('rho'),
+      stimulus_type: "target",
+      trial_n: jsPsych.timelineVariable('trial'),
+      condition: jsPsych.timelineVariable('condition'),
+      task: jsPsych.timelineVariable('task'),
+      pu: jsPsych.timelineVariable('pu')
+    },
+};
+
+var stimulus_demo_compare= {
+    type: jsPsychHtmlKeyboardResponse,
+    trial_duration: param.comparison,
+    response_ends_trial: false,
+    on_start: function(stimulus_target) {
+    n_spikes = conditions[jsPsych.timelineVariable("condition")]
+
+    if(jsPsych.timelineVariable('choice') == same){
+      stimulus_target.stimulus = "<img src='Shapes/shapes_png/F" + jsPsych.timelineVariable('rho') + "_S"+n_spikes + ".png' width='"+ param.size + "' height='" + param.size + "'></img>"
+    } else {
+      if (jsPsych.timelineVariable('rho')<= 70){
+        rho_compare = jsPsych.timelineVariable('rho')+20
+        stimulus_target.stimulus = "<img src='Shapes/shapes_png/F" + rho_compare + "_S"+n_spikes + ".png' width='"+ param.size + "' height='" + param.size + "'></img>"
+      } else {
+        rho_compare = jsPsych.timelineVariable('rho')-20
+        stimulus_target.stimulus = "<img src='Shapes/shapes_png/F" + rho_compare + "_S"+n_spikes + ".png' width='"+ param.size + "' height='" + param.size + "'></img>"
+      }
+    }
+  },
+    stimulus: '' ,
+    data: {
+      rho: jsPsych.timelineVariable('rho'),
+      stimulus_type: "comparison",
+      trial_n: jsPsych.timelineVariable('trial'),
+      condition: jsPsych.timelineVariable('condition'),
+      task: jsPsych.timelineVariable('task'),
+      titration: 'no',
+      pu: jsPsych.timelineVariable('pu')
+    },
+};
+
+
+
+/* ------ REPEAT TITRATION ------ */
+// define stimuli
+var n_spikes = []
+
+var stimulus_target= {
+    type: jsPsychHtmlKeyboardResponse,
+    trial_duration: param.target,
+    response_ends_trial: false,
+    on_start: function(stimulus_target) {
+    n_spikes = conditions[jsPsych.timelineVariable("condition")]
+    stimulus_target.stimulus = "<img src='Shapes/shapes_png/F" + jsPsych.timelineVariable('rho') + "_S"+n_spikes + ".png' width='"+ param.size + "' height='" + param.size + "'></img>"
+  },
+    stimulus: '' ,
+    data: {
+      rho: jsPsych.timelineVariable('rho'),
+      stimulus_type: "target",
+      trial_n: jsPsych.timelineVariable('trial'),
+      condition: jsPsych.timelineVariable('condition'),
+      task: jsPsych.timelineVariable('task'),
+      block: jsPsych.timelineVariable('block'),
+      pu: jsPsych.timelineVariable('pu')
+    },
+};
+
+var stimulus_scramble= {
+    type: jsPsychHtmlKeyboardResponse,
+    trial_duration: param.scramble,
+    response_ends_trial: false,
+    on_start: function(stimulus_target) {
+    n_spikes = conditions[jsPsych.timelineVariable("condition")]
+    stimulus_target.stimulus = "<img src='Shapes/shapes_png/scramble_S" + n_spikes + ".png' width='"+ param.size + "' height='" + param.size + "'></img>"
+  },
+    stimulus: '' ,
+    data: {
+      //rho: jsPsych.timelineVariable('rho'),
+      stimulus_type: "scramble",
+      trial_n: jsPsych.timelineVariable('trial'),
+      condition: jsPsych.timelineVariable('condition'),
+      task: jsPsych.timelineVariable('task'),
+      block: jsPsych.timelineVariable('block'),
+      //pu: jsPsych.timelineVariable('pu')
+    },
+};
+
+var stimulus_scramble2= {
+    type: jsPsychHtmlKeyboardResponse,
+    trial_duration: param.scramble,
+    response_ends_trial: false,
+    on_start: function(stimulus_target) {
+    n_spikes = conditions[jsPsych.timelineVariable("condition")]
+    stimulus_target.stimulus = "<img src='Shapes/shapes_png/scramble_S" + n_spikes + ".png' width='"+ param.size + "' height='" + param.size + "'></img>"
+  },
+    stimulus: '' ,
+    data: {
+      //rho: jsPsych.timelineVariable('rho'),
+      stimulus_type: "scramble",
+      trial_n: jsPsych.timelineVariable('trial'),
+      condition: jsPsych.timelineVariable('condition'),
+      task: jsPsych.timelineVariable('task'),
+      block: jsPsych.timelineVariable('block'),
+      //pu: jsPsych.timelineVariable('pu'),
+      attention_lapse: 'record', 
+    },
+};
+
+var stimulus_fixcross = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: '<center style="font-size:50px;">+</center>',
+    choices: " ",
+    response_ends_trial: false,
+    trial_duration: jsPsych.timelineVariable('iti'),
+    data: { stimulus_type: 'ITI' },
+  };
+
+var stimulus_isi = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: '',
+    choices: "NO_KEYS",
+    trial_duration: jsPsych.timelineVariable('isi'),
+    data: { stimulus_type: 'ISI' },
+  };
+
+var rho_compare = []; var lastresponse = []; var step = []; var last_step = [];
+var stimulus_compare_kaern = {
+    type: jsPsychHtmlKeyboardResponse,
+    trial_duration: param.comparison,
+    response_ends_trial: true,
+    choices: [same, different, " "],
+    on_start: function(stimulus_compare) {
+      current_trial = jsPsych.timelineVariable('trial')
+      previous_rho = jsPsych.timelineVariable('rho')
+      n_spikes = conditions[jsPsych.timelineVariable("condition")]
+
+    if(jsPsych.timelineVariable('choice')== same){
+      rho_compare = previous_rho
+      step = 0 
+      stimulus_compare.data.sameness = 'same'
+      console.log("same")
+      
+    } else if (jsPsych.timelineVariable('first') == 2){
+      if (jsPsych.timelineVariable("pu") == 0){
+        step = avg_low
+      } else {
+        step = avg_high
+      }
+
+      /*
+      switch (n_spikes){
+        //case 3: step = initial_steps['condition_3'][0]; console.log('3'); break 
+        case 3: step = initial_steps['condition_3']; console.log('3'); break 
+        case 4: step = initial_steps['condition_4']; console.log('4');break 
+        case 5: step = initial_steps['condition_5']; console.log('5');break 
+        case 6: step = initial_steps['condition_6']; console.log('6');break 
+        case 9: step = initial_steps['condition_9']; console.log('9');break  
+        case 12: step = initial_steps['condition_12']; console.log('12');
+      }*/
+        console.log("first diff", step)
+        stimulus_compare.data.sameness = 'different'
+        rho_compare = previous_rho + step
+
+    } else if (jsPsych.timelineVariable('choice') == different){
+      console.log('titrating ...') 
+      lastresponse = jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'response', sameness: "different" }).last().values()[0].correct
+      last_step = jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'comparison', sameness: "different" }).last().values()[0].step
+      console.log(last_step, lastresponse)
+      stimulus_compare.data.sameness = 'different'
+
+      if(jsPsych.timelineVariable("pu") == 0){
+        if (lastresponse == 1 && (last_step-step_decrease_c1) >= step_min){
+        step = last_step - step_decrease_c1
+        } else if (lastresponse == 1 && (last_step-step_decrease_c1) < step_min){
+        step = step_min
+        } else if (lastresponse == 0 && (last_step+step_increase_c1) <= step_max){
+        step = last_step + step_increase_c1 
+        } else {step = step_max
+       }
+
+      } else {
+
+        if (lastresponse == 1 && (last_step-step_decrease_c2) >= step_min){
+        step = last_step - step_decrease_c2
+        } else if (lastresponse == 1 && (last_step-step_decrease_c2) < step_min){
+        step = step_min
+        } else if (lastresponse == 0 && (last_step+step_increase_c2) <= step_max){
+        step = last_step + step_increase_c2 
+        } else {step = step_max
+       }
+      }
+      
+      console.log(step)
+      direction = [1,2]
+      dir = jsPsych.randomization.sampleWithReplacement(direction, 1); // randomly pick a schedule for participant
+      if (dir == 1){
+      if(previous_rho + step >= 199){
+        rho_compare = previous_rho - step
+        console.log("edge correction down")
+       } else {
+        rho_compare = previous_rho + step
+        console.log('up')
+        }
+      } else { 
+      if(previous_rho - step <= 0){
+        rho_compare = previous_rho + step
+        console.log('edge correction up')
+        } else{
+        rho_compare = previous_rho - step
+        console.log('down')
+        }
+      }
+
+      }
+
+      stimulus_compare.stimulus = "<img src='Shapes/shapes_png/F" + rho_compare + "_S"+n_spikes + ".png' width='"+ param.size + "' height='" + param.size + "'></img>"
+      stimulus_compare.data.rho = rho_compare
+      stimulus_compare.data.step = step
+      console.log('after', step)
+
+      },
+
+    stimulus: '',
+    data: {
+      rho: rho_compare,
+      //rho_target: jsPsych.timelineVariable('rho'),
+      stimulus_type: 'comparison',
+      titration: 'kaern',
+      correct_choice: jsPsych.timelineVariable('choice'),
+      trial_n: jsPsych.timelineVariable('trial'),
+      condition: jsPsych.timelineVariable('condition'),
+      task: jsPsych.timelineVariable('task'),
+      block: jsPsych.timelineVariable('block'),
+      pu: jsPsych.timelineVariable('pu'),
+      spikes: conditions[jsPsych.timelineVariable("condition")],
+      color: function(){ return cols[jsPsych.timelineVariable("condition")]},
+      //sameness: jsPsych.timelineVariable('sameness')
+    },
+    on_finish: function (data) {
+      data.spikes = n_spikes
+      }
+
+};
+
+step_updated = {}
+
+var add_step = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: '',
+    trial_duration: 0.1,
+    data: {session_parameters},
+    on_start: function(stimulus_target) {
+      if(jsPsych.timelineVariable('condition')==0){
+      steps = jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'comparison', sameness: "different", condition: 0, titration: "kaern" }).last(5).select('step').mean()
+      last_step = Math.round(steps)
+      if(last_step >24){console.log('reached max. admissible step size'), last_step = 24}
+    } else if (jsPsych.timelineVariable('condition')==1) {
+      steps = jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'comparison', sameness: "different", condition: 1, titration: "kaern" }).last(5).select('step').mean()
+      last_step = Math.round(steps)
+      if(last_step >24){console.log('reached max. admissible step size'),last_step = 24}
+    } else if (jsPsych.timelineVariable('condition')==2) {
+      steps = jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'comparison', sameness: "different", condition: 2, titration: "kaern" }).last(5).select('step').mean()
+      last_step = Math.round(steps)
+      if(last_step >24){console.log('reached max. admissible step size'),last_step = 24}
+    } else if (jsPsych.timelineVariable('condition')==3) {
+      steps = jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'comparison', sameness: "different", condition: 3, titration: "kaern" }).last(5).select('step').mean()
+      last_step = Math.round(steps)
+      if(last_step >24){console.log('reached max. admissible step size'),last_step = 24}
+    } else if (jsPsych.timelineVariable('condition')==4) {
+      steps = jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'comparison', sameness: "different", condition: 4, titration: "kaern" }).last(5).select('step').mean()
+      last_step = Math.round(steps)
+      if(last_step >24){console.log('reached max. admissible step size'),last_step = 24}
+    } else {
+      steps = jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'comparison', sameness: "different", condition: 5, titration: "kaern" }).last(5).select('step').mean()
+      last_step = Math.round(steps) 
+      if(last_step >24){console.log('reached max. admissible step size'),last_step = 24}  
+    }
+    n_spikes = conditions[jsPsych.timelineVariable("condition")]
+    step_updated['condition_' +n_spikes] = last_step
+    console.log(last_step)
+    console.log(step_updated)
+    }
+  };
+
+
+  var if_last = {
+    timeline: [add_step],
+    conditional_function: function () {
+      if (jsPsych.timelineVariable('trial') == 20) {
+        return true;
+      } else { return false; }
+    }
+  }
+
+
+var response = {
+    type: jsPsychHtmlKeyboardResponse,
+    trial_duration: param.response,
+    stimulus: 'Same or different? ',
+    choices: [same, different, " "],
+    response_ends_trial: true,
+    data: {
+      stimulus_type: 'response',
+      correct_choice: jsPsych.timelineVariable('choice'),
+      trial_n: jsPsych.timelineVariable('trial'),
+      condition: jsPsych.timelineVariable('condition'),
+      task: jsPsych.timelineVariable('task'),
+      block: jsPsych.timelineVariable('block'),
+      sameness: jsPsych.timelineVariable('sameness'),
+      pu: jsPsych.timelineVariable('pu')
+    },
+    on_finish: function (data) {
+      if (jsPsych.pluginAPI.compareKeys(data.response, data.correct_choice)) {
+        data.correct = 1;
+        } else {
+        data.correct = 0;
+      }
+    }
+  };
+
+var feedback = { 
+    type: jsPsychHtmlKeyboardResponse,
+    trial_duration: param.feedback,
+    data: { stimulus_type: 'feedback', trial_n: jsPsych.timelineVariable('trial')},
+    stimulus: function () {
+      var last_response= jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'response' }).last(1).values()[0];
+      var last_stimulus = jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'comparison' }).last(1).values()[0]
+
+      if (last_response.rt == null && last_stimulus.rt == null) {
+        return 'slow';
+      } else if (last_response.correct) {
+        return 'Correct'
+      } else {
+        return 'Incorrect';
+      }
+    }
+  };
+
+var collect = [];
+
+var end_of_titration = {
+  type: jsPsychHtmlKeyboardResponse,
+  trial_duration: 4000,
+  data: { stimulus_type: 'end_block' },
+  stimulus: function () {
+    var all_responses = jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'response'}).last(param.length_block).values() //adapt length to var
+    for (r = 0; r < all_responses.length; r++) {
+    collect[r] = all_responses[r].correct
+    }
+    
+    sum_correct = add(collect)
+    incorrect = param.length_block - sum_correct
+    console.log(collect, sum_correct, incorrect,param.length_block)
+    return ' In this block you got ' + incorrect + ' out of '+ param.length_block + ' wrong! >>>';
+  }
+}
+
+
+// Are you still playing?
+
+  var notResponding = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: 'Are you still following the experiment? Please confirm by pressing the \"W\" key >>>',
+    choices: ['w'],
+    data: { stimulus_type: 'not_responding' }
+  };
+
+  var if_not_responding = { // check if last 3 trials had no response
+    timeline: [notResponding],
+    conditional_function: function () {
+      var last = jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'response' }).last(1).values()[0];
+      var last2 = jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'response' }).last(2).values()[0];
+      var last3 = jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'response' }).last(3).values()[0];
+      console.log(last)
+      if (last.response == null && last2.response == null && last3.response == null) {
+        return true;
+      } else {return false; }
+    }
+  }
+
+
+
+//build blocks 
+demo_trials = {}
+for (c = 1; c <= n_conditions; c++) {
+    demo_trials['demo_c'+ c + '_b1'] = {
+      timeline: [instruction_demo_cue, stimulus_demo_target, stimulus_scramble, stimulus_isi, stimulus_demo_compare, response, feedback, stimulus_fixcross],
+      timeline_variables: protocol['demo_C' + c + '_B1'], 
+      randomize_order: false,
+}
+}
+
+
+kaern_trials = {}
+for (c = 1; c <= n_conditions; c++) {
+  kaern_trials['kaern' + c + '_b1'] = {
+      timeline: [stimulus_target, stimulus_scramble, stimulus_isi, stimulus_compare_kaern, response, stimulus_scramble2, stimulus_fixcross,if_not_responding,if_last],
+      timeline_variables: protocol['kaern_C' + c + '_B1'],
+    } 
+  }
+
+
+/* ------ SNAPSHOT ------ */ 
+
+// build personalised stimulus space x condition
+
+stp = {}, sets = {}
+
+var create_space = {
+    type: jsPsychHtmlKeyboardResponse,
+    trial_duration: 0.0,
+    response_ends_trial: false,    
+    stimulus: '' ,
+    on_start: function(){
+      for (let i = 0; i <= n_conditions-1; i++) {
+      stp['stp_'+conditions[i]] = step_updated['condition_'+ conditions[i]]
+      sets['set_'+ conditions[i]] = [(cs_plus-4*stp['stp_'+ conditions[i]]),(cs_plus-3*stp['stp_'+ conditions[i]]),(cs_plus-2*stp['stp_'+ conditions[i]]),(cs_plus-1*stp['stp_'+ conditions[i]]),cs_plus,(cs_plus+1*stp['stp_'+ conditions[i]]),(cs_plus+2*stp['stp_'+ conditions[i]]),(cs_plus+3*stp['stp_'+ conditions[i]]),(cs_plus+4*stp['stp_'+ conditions[i]])]
+      console.log(stp, sets)
+      }
+      console.log(stp, sets)
+      return sets
+
+    },
+    data: {
+      rho: cs_plus,
+      stimulus_type: "create",
+      //trial_n: jsPsych.timelineVariable('trial'),
+      //condition: jsPsych.timelineVariable('condition'),
+      //task: jsPsych.timelineVariable('task'),
+      //block: jsPsych.timelineVariable('block'),
+      //ou: ou_levels[jsPsych.timelineVariable("condition")],
+      //pu: pu_levels[jsPsych.timelineVariable("condition")]
+    },
+};
+
+var rating_snap = { 
+    type: jsPsychHtmlSliderResponse,
+    
+    stimulus: function (){
+    n_spikes = conditions[jsPsych.timelineVariable("condition")]
+    gen1 = jsPsych.timelineVariable("gen1")
+    gen2 = jsPsych.timelineVariable("gen2")
+    set = sets['set_'+n_spikes]
+    if (jsPsych.timelineVariable('order') ==0){
+    rho_gs1 = set[gen1]
+    rho_gs2 = set[gen2] 
+    } else {
+    rho_gs1 = set[gen2]
+    rho_gs2 = set[gen1] 
+    }
+    console.log(rho_gs1, rho_gs2)
+    return "<img src='Shapes/shapes_png/F"+ rho_gs1 + "_S"+n_spikes + ".png' width='"+ param.size + "' height='" + param.size + "'></img>"+"<img src='Shapes/shapes_png/F"+ rho_gs2 + "_S"+n_spikes + ".png' width='"+ param.size + "' height='" + param.size + "'></img>" },
+    prompt: 'How similar are these two space flowers?    ',
+    labels: ['same','completely different'], 
+    min: 0,
+    max: 100,
+    slider_start: 0, 
+    button_lable: 'confirm',
+    show_value: false, //modified slider plugin to show value!
+    require_movement: true,
+    data: { 
+      rho1: function(){
+      n_spikes = conditions[jsPsych.timelineVariable("condition")]
+      set = sets['set_'+n_spikes]
+      if (jsPsych.timelineVariable('order') == 0)
+      {return set[jsPsych.timelineVariable("gen1")]
+      } else {return set[jsPsych.timelineVariable("gen2")]}},
+      rho2: function(){
+      n_spikes = conditions[jsPsych.timelineVariable("condition")]
+      set = sets['set_'+n_spikes]
+      if (jsPsych.timelineVariable('order') == 0)
+      {return set[jsPsych.timelineVariable("gen2")]
+      } else {return set[jsPsych.timelineVariable("gen1")]}},
+      
+      gs1: function(){if (jsPsych.timelineVariable('order') == 0)
+      {return jsPsych.timelineVariable('gen1')
+      } else {return jsPsych.timelineVariable('gen2')}},
+      gs2: function(){if (jsPsych.timelineVariable('order') == 0)
+      {return jsPsych.timelineVariable('gen2')
+      } else {return jsPsych.timelineVariable('gen1')}},
+      stimulus_type: "snap",
+      trial_n: jsPsych.timelineVariable('trial'),
+      condition: jsPsych.timelineVariable('condition'),
+      task: jsPsych.timelineVariable('task'),
+      block: jsPsych.timelineVariable('block'),
+      color: function(){ return cols[jsPsych.timelineVariable("condition")]},
+      //sameness: jsPsych.timelineVariable('sameness'),
+      //correct_choice: jsPsych.timelineVariable('choice'),
+      pu: jsPsych.timelineVariable('pu'),
+      step: function(){
+      return stp['stp_'+conditions[jsPsych.timelineVariable("condition")]] 
+      }
+    },
+  }
+
+
+/*
+
+var rho_current = []
+var stimulus_snap_first= {
+    type: jsPsychHtmlKeyboardResponse,
+    trial_duration: param.target,
+    response_ends_trial: false,
+    stimulus: function() {
+    n_spikes = conditions[jsPsych.timelineVariable("condition")]
+    gen1 = jsPsych.timelineVariable("gen1")
+    gen2 = jsPsych.timelineVariable("gen2")
+    set = sets['set_'+n_spikes]
+    console.log(set, gen1, gen2)
+    console.log(set[gen1],set[gen1])
+
+    if (jsPsych.timelineVariable('sameness') == 'same'){
+      rho_current = set[gen1]
+      console.log(rho_current)
+      
+    } else {
+
+      if (jsPsych.timelineVariable('order') ==0){
+      rho_current = set[gen1] 
+      console.log(rho_current)
+      
+      } else {rho_current = set[gen2] 
+      console.log(rho_current)
+      
+    }}
+  
+    return "<img src='Shapes/shapes_png/F"+ rho_current + "_S"+n_spikes + ".png' width='"+ param.size + "' height='" + param.size + "'></img>"
+    },
+
+    // is it taking the previous rho current?
+    //stimulus: function(){ return "<img src='Shapes/shapes_png/F"+ rho_current + "_S"+n_spikes + ".png' width='"+ param.size + "' height='" + param.size + "'></img>"},
+    data: {
+      rho: function(){
+      n_spikes = conditions[jsPsych.timelineVariable("condition")]
+      set = sets['set_'+n_spikes]
+      if (jsPsych.timelineVariable('sameness') == 'same')
+      { return set[jsPsych.timelineVariable("gen1")]
+      } else if (jsPsych.timelineVariable('order') == 0)
+      {return set[jsPsych.timelineVariable("gen1")]
+      } else {return set[jsPsych.timelineVariable("gen2")]}},
+      
+      gs: function(){if (jsPsych.timelineVariable('sameness') == 'same')
+      { return jsPsych.timelineVariable('gen1')
+      } else if (jsPsych.timelineVariable('order') == 0)
+      {return jsPsych.timelineVariable('gen1')
+      } else {return jsPsych.timelineVariable('gen2')}},
+      stimulus_type: "snap1",
+      trial_n: jsPsych.timelineVariable('trial'),
+      condition: jsPsych.timelineVariable('condition'),
+      task: jsPsych.timelineVariable('task'),
+      block: jsPsych.timelineVariable('block'),
+      //pu: jsPsych.timelineVariable('pu')
+    },
+};
+
+var stimulus_snap_last= {
+    type: jsPsychHtmlKeyboardResponse,
+    trial_duration: param.target,
+    response_ends_trial: false,
+    stimulus: function() {
+    n_spikes = conditions[jsPsych.timelineVariable("condition")]
+    gen1 = jsPsych.timelineVariable("gen1")
+    gen2 = jsPsych.timelineVariable("gen2")
+    set = sets['set_'+n_spikes]
+    console.log(set, gen1, gen2)
+    console.log(set[gen1],set[gen2])
+
+    if (jsPsych.timelineVariable('sameness') == 'same'){
+      rho_current = set[gen1]
+    } else {
+
+      if (jsPsych.timelineVariable('order') ==0){
+      rho_current = set[gen2]
+      } else {rho_current = set[gen1] 
+        console.log(rho_current)
+
+    }}
+    return "<img src='Shapes/shapes_png/F"+ rho_current + "_S"+n_spikes + ".png' width='"+ param.size + "' height='" + param.size + "'></img>"
+    },
+    //stimulus: function() {return"<img src='Shapes/shapes_png/F"+ rho_current + "_S"+n_spikes + ".png' width='"+ param.size + "' height='" + param.size + "'></img>"},
+    data: {
+      rho: function(){
+      n_spikes = conditions[jsPsych.timelineVariable("condition")]
+      set = sets['set_'+n_spikes]
+      if (jsPsych.timelineVariable('sameness') == 'same')
+      { return set[jsPsych.timelineVariable("gen1")]
+      } else if (jsPsych.timelineVariable('order') == 0)
+      {return set[jsPsych.timelineVariable("gen2")]
+      } else {return set[jsPsych.timelineVariable("gen1")]}},
+      
+      gs: function(){if (jsPsych.timelineVariable('sameness') == 'same')
+      { return jsPsych.timelineVariable('gen1')
+      } else if (jsPsych.timelineVariable('order') == 0)
+      {return jsPsych.timelineVariable('gen2')
+      } else {return jsPsych.timelineVariable('gen1')}},
+      stimulus_type: "snap2",
+      trial_n: jsPsych.timelineVariable('trial'),
+      condition: jsPsych.timelineVariable('condition'),
+      task: jsPsych.timelineVariable('task'),
+      block: jsPsych.timelineVariable('block'),
+      sameness: jsPsych.timelineVariable('sameness'),
+      correct_choice: jsPsych.timelineVariable('choice'),
+      pu: jsPsych.timelineVariable('pu')
+    },
+};
+
+*/
+
+snap_trials = {}, attention_check = []
+for (c = 1; c <= n_conditions; c++) {
+  for (b = 1; b <= param.n_blocks_snap; b++) {
+    snap_trials['snap_c'+ c + '_b' + b] = {
+      timeline: [rating_snap, stimulus_scramble, stimulus_fixcross],
+      timeline_variables: protocol['snap_C' + c + '_B' + b],
+      on_timeline_start: function () {
+        var pick_attention_check = [0,1]; //pick beginning or end
+        attention_check = jsPsych.randomization.sampleWithReplacement(pick_attention_check, 1); // randomly pick one trial for uncertainty rating
+        console.log(pick_attention_check, attention_check)
+      }
+  } 
+}
+}
+
+
+
+
+/* ------ LEARNING TASK ------ */ 
+
+
+var stimulus_cs = {
+    type: jsPsychHtmlKeyboardResponse,
+    trial_duration: param.cs_plus,
+    response_ends_trial: false,
+    on_start: function(stimulus_cs) {
+    n_spikes = conditions[jsPsych.timelineVariable("condition")]
+    stimulus_cs.stimulus = "<img src='Shapes/shapes_png/F"+ cs_plus + "_S"+n_spikes + ".png' width='"+ param.size + "' height='" + param.size + "'></img>"
+  },
+    stimulus: '' ,
+    data: {
+      rho: cs_plus, 
+      stimulus_type: "learning",
+      trial_n: jsPsych.timelineVariable('trial'),
+      condition: jsPsych.timelineVariable('condition'),
+      task: jsPsych.timelineVariable('task'),
+      block: jsPsych.timelineVariable('block'),
+      ou: function(){console.log (ou_levels,ou_levels[jsPsych.timelineVariable("condition")]); return ou_levels[jsPsych.timelineVariable("condition")]},
+      scream: function() {
+        current_ou = ou_levels[jsPsych.timelineVariable("condition")]
+        switch (current_ou){
+        case "low": ou = jsPsych.timelineVariable("ouA"); return ou; break
+        case "mid": ou = jsPsych.timelineVariable("ouB"); return ou; break
+        case "high": ou = jsPsych.timelineVariable("ouC"); return ou
+    }
+    },
+    pu: jsPsych.timelineVariable("pu")
+}};
+
+
+/*
+var scream = {
+    type: jsPsychHtmlKeyboardResponse,
+    trial_duration: param.silence,
+    response_ends_trial: false,    
+    stimulus: 'placeholder for SCREAM - feedback' ,
+    data: {
+      rho: cs_plus,
+      stimulus_type: "scream",
+      trial_n: jsPsych.timelineVariable('trial'),
+      condition: jsPsych.timelineVariable('condition'),
+      task: jsPsych.timelineVariable('task'),
+      block: jsPsych.timelineVariable('block'),
+      ou: function(){console.log (ou_levels,ou_levels[jsPsych.timelineVariable("condition")]); return ou_levels[jsPsych.timelineVariable("condition")]},
+      pu: jsPsych.timelineVariable("pu")
+    },
+};
+*/
+
+var scream = {
+    type: jsPsychAudioKeyboardResponse,
+    stimulus: 'screams/scream1.wav',
+    choices: "NO_KEYS",
+    prompt: 'feedback',
+    trial_ends_after_audio: true,
+    data: {
+      rho: cs_plus,
+      stimulus_type: "scream",
+      trial_n: jsPsych.timelineVariable('trial'),
+      condition: jsPsych.timelineVariable('condition'),
+      task: jsPsych.timelineVariable('task'),
+      block: jsPsych.timelineVariable('block'),
+      ou: function(){console.log (ou_levels,ou_levels[jsPsych.timelineVariable("condition")]); return ou_levels[jsPsych.timelineVariable("condition")]},
+      pu: jsPsych.timelineVariable("pu")
+    }
+};
+
+
+var silence = {
+    type: jsPsychHtmlKeyboardResponse,
+    trial_duration: param.silence,
+    response_ends_trial: false,    
+    stimulus: 'feedback' ,
+    data: {
+      rho: cs_plus,
+      stimulus_type: "silence",
+      trial_n: jsPsych.timelineVariable('trial'),
+      condition: jsPsych.timelineVariable('condition'),
+      task: jsPsych.timelineVariable('task'),
+      block: jsPsych.timelineVariable('block'),
+      ou: function(){console.log (ou_levels,ou_levels[jsPsych.timelineVariable("condition")]); return ou_levels[jsPsych.timelineVariable("condition")]},
+      pu: jsPsych.timelineVariable("pu")
+    },
+};
+
+
+var if_reinforcement = { // check if last 3 trials had no response
+    timeline: [scream],
+    conditional_function: function () {
+    current_ou = ou_levels[jsPsych.timelineVariable("condition")]
+    switch (current_ou){
+    case "low": play_scream = jsPsych.timelineVariable("ouA"); break
+    case "mid":  play_scream = jsPsych.timelineVariable("ouB"); break
+    case "high": play_scream = jsPsych.timelineVariable("ouC")
+    }
+    if(play_scream == 1){return true;
+    } else {return false}
+
+    }
+  }
+
+var if_NO_reinforcement = { // check if last 3 trials had no response
+    timeline: [silence],
+    conditional_function: function () {
+    current_ou = ou_levels[jsPsych.timelineVariable("condition")]
+    switch (current_ou){
+    case "low": play_scream = jsPsych.timelineVariable("ouA"); break
+    case "mid":  play_scream = jsPsych.timelineVariable("ouB"); break
+    case "high": play_scream = jsPsych.timelineVariable("ouC")
+    }
+    if(play_scream == 0){return true;
+    } else {return false}
+
+    }
+  }
+
+  var rating_scream = { 
+    type: jsPsychHtmlSliderResponse,
+    stimulus: function (){
+    cond = jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'learning'}).last().values()[0].condition
+    console.log(conditions[cond])
+    return "<img src='Shapes/shapes_png/F100_S"+conditions[cond] + ".png' width='"+ param.size + "' height='" + param.size + "'></img>" },
+    prompt: 'How likely is it that this super space flower screams at you?   ',
+    labels: ['0%', '10%','20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%','100%'], 
+    min: 0,
+    max: 100,
+    slider_start: 0, 
+    button_lable: 'confirm',
+    show_value: true, //modified slider plugin to show value!
+    require_movement: true,
+    data: { 
+      stimulus_type: 'rating',
+      rho: cs_plus,
+      condition: function(){ co =jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'learning'}).last().values()[0].condition; return co },
+      task: 'learn',
+      block: function(){ blc =jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'learning'}).last().values()[0].block; return blc },
+      ou: function(){ outc =jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'learning'}).last().values()[0].ou; return outc },
+      pu: function(){ punc =jsPsych.data.get().filter({ trial_type: 'html-keyboard-response', stimulus_type: 'learning'}).last().values()[0].pu; return punc },},
+  }
+
+
+  var rating_scream_demo = { 
+    type: jsPsychHtmlSliderResponse,
+    stimulus: function (){
+    return "<img src='Shapes/shapes_png/F100_S"+conditions[0]  + ".png' width='"+ param.size + "' height='" + param.size + "'></img>" },
+    prompt: 'How likely is it that this super space flower screams at you?   ',
+    labels: ['0%', '10%','20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%','100%'], 
+    min: 0,
+    max: 100,
+    slider_start: 0, 
+    button_lable: 'confirm',
+    show_value: true, //modified slider plugin to show value!
+    require_movement: true,
+    data: { type: 'rating_demo' },
+  }
+ 
+
+learn_trials = {} //attention_check = []
+for (c = 1; c <= n_conditions; c++) {
+  for (b = 1; b <= param.n_blocks_learn; b++) {
+    learn_trials['learn_c'+ c + '_b' + b] = {
+      timeline: [stimulus_cs, if_reinforcement,if_NO_reinforcement,stimulus_fixcross],
+      timeline_variables: protocol['learn_C' + c + '_B' + b], 
+      randomize_order: false,
+  } 
+}
+}
+
+// learning history could be added?
+
+
+
+
+/* ------ GENEALISATION TASK ------ */ 
+
+
+var rating_scream_gen = { 
+    type: jsPsychHtmlSliderResponse,
+    stimulus: function() {
+    n_spikes = conditions[jsPsych.timelineVariable("condition")]
+    gen_stim = jsPsych.timelineVariable("gen")//i.e. 0,1,2,3,4,5,6,7,8
+    set = sets['set_'+ n_spikes]
+    console.log(gen_stim,set[gen_stim])
+    return "<img src='Shapes/shapes_png/F"+ set[gen_stim] + "_S"+n_spikes + ".png' width='"+ param.size + "' height='" + param.size + "'></img>" },
+    prompt: 'How likely is it that this flower screams at you?   ',
+    labels: ['0%', '10%','20%', '30%', '40%', '50%', '60%', '70%', '80%', '90%','100%'], 
+    min: 0,
+    max: 100,
+    slider_start: 0, 
+    button_lable: 'confirm',
+    show_value: true, //modified slider plugin to show value!
+    require_movement: true,
+    data: { 
+        rho: function(){
+        n_spikes = conditions[jsPsych.timelineVariable("condition")]
+        gen_stim = jsPsych.timelineVariable("gen")
+        set = sets['set_'+ n_spikes]
+        return set[gen_stim]
+      }, 
+      gs: jsPsych.timelineVariable("gen"),
+      stimulus_type: "rating_generalisation",
+      trial_n: jsPsych.timelineVariable('trial'),
+      condition: jsPsych.timelineVariable('condition'),
+      task: jsPsych.timelineVariable('task'),
+      block: jsPsych.timelineVariable('block'),
+      ou: function(){console.log (ou_levels,ou_levels[jsPsych.timelineVariable("condition")]); return ou_levels[jsPsych.timelineVariable("condition")]},
+      pu: jsPsych.timelineVariable("pu")
+
+  },
+  }
+
+
+
+gen_trials = {} //attention_check = []
+for (c = 1; c <= n_conditions; c++) {
+  for (b = 1; b <= param.n_blocks_gen; b++) {
+    gen_trials['gen_c'+ c + '_b' + b] = {
+      timeline: [rating_scream_gen,stimulus_scramble, stimulus_fixcross],
+      timeline_variables: protocol['gen_C' + c + '_B' + b], 
+      randomize_order: false,
+  } 
+}
+}
+
+var final_comment_color = {
+  type: jsPsychSurveyMultiChoice,
+  questions: [
+    {
+      prompt: "Was there a colour that was easier than the others?", 
+      options: ['No, more or less the same', 'pink', 'green', 'turquoise', 'blue', 'orange'], 
+      required: true
+    },
+  ],
+};
+
+var final_comment_transfer = {
+  type: jsPsychSurveyMultiChoice,
+  questions: [
+    {
+      prompt: "Did you use the information that you learned for one planet for other planets?", 
+      options: ['Yes', 'No', 'Sometimes'], 
+      required: true
+    },
+  ],
+};
+
+
+var identify_c22 = {
+  type: jsPsychSurveyMultiChoice,
+  questions: [{
+    prompt: function(){
+    return "The following flowers are some of the different space flowers that you have seen during this task." +"<br>"+"<br>"+ "<img src='img/continuum_crop.png' width='"+ 800 + "'>" +"<br>" +"<br>" + "Please select the statement that you feel is most accurate:"
+    } ,
+      name: 'Identify', 
+      options: ['The spikier the petals of the space flower (more to the left in the image above) the more likely it is that it would scream at you.', 'The rounder the petals of the space flower (more to the right in the image above) the more likely it is that it would scream at you.', 'The more average (closer to the middle in the image above) the space flower the more likely it is that it would scream at you.', 'It is equally likely for all the space flowers above to scream at you.'], 
+      required: true,
+      horizontal: false
+    }],
+  data: {
+    type: 'rule_choice'
+  }
+};
+
+var identify_c33 = {
+  type: jsPsychSurveyMultiChoice,
+  questions: [{
+    prompt: " Were you using any specific rule to decide if a flower is going to scream or not?" ,
+      name: 'Rule', 
+      options: ['Yes', 'No'], 
+      required: true,
+      horizontal: false
+    }],
+  data: {
+    type: 'rule_yesno'
+  }
+};
+
+
+var identify_c44 = {
+    type: jsPsychSurveyText,
+    questions: [
+    {prompt: 'Please explain in detail what the relationship between the shape of the flowers and the occurrence of a scream was.'}
+  ],
+    data: { type: 'rule_open' }
+};
+
+var identify_c55 = {
+  type: jsPsychSurveyMultiChoice,
+  questions: [{
+    prompt: "Did you worry that potentially there would be an even more dangerous space flower than the super space flower that you have seen screaming? If so, which? " ,
+      name: 'Rule', 
+      options: ['Yes, the very round one', 'Yes, the very spikey one', 'No', 'Other (please specify on the next page)'], 
+      required: true,
+      horizontal: false
+    }],
+  data: {
+    type: 'worry_yesno'
+  }
+};
+
+
+var timeline = [
+add_data, preload, 
+preload_sound, preload_img,
+if_browser, fullscreen, initial_warning, distance_check, update_size,
+
+instruction_welcome, instruction_fullscreen,
+instruction_keys1 , instruction_keys2, instruction_keys3, instruction_keys4, instruction_keys4b, instruction_keys5, spacebloom_3, 
+instr_sess3_1,instr_sess3_1b, instr_sess3_2, instr_sess2_intro1, instruction_task2c, instruction_task_repeat, instruction_task3c, instruction_sess2_never2, instruction_sess2_never3, instruction_task6,
+instruction_task_repeat2, instruction_intro,
+
+// Training
+kaern_trials['kaern4_b1'], create_space, end_of_titration, instr_sess2_snap, instr_sess2_snap2,
+snap_trials['snap_c4_b1'], instruction_task8, instr_sess3_initial, instruction_intro, 
+kaern_trials['kaern5_b1'], create_space, end_of_titration, instr_sess2_snap3, 
+snap_trials['snap_c5_b1'], instruction_task8, instr_sess3_initial2, instruction_intro, 
+kaern_trials['kaern6_b1'], create_space, end_of_titration, instr_sess2_snap3, 
+snap_trials['snap_c6_b1'], 
+
+
+
+// Mission
+instr_sess3_3, instr_sess2_4, instr_sess2_5, instr_sess2_6, instr_sess2_7, instr_sess2_8, 
+instr_sess3_11, instr_sess2_12, 
+learn_trials['learn_c4_b1'], rating_scream, learn_trials['learn_c4_b2'],rating_scream, 
+instr_sess2_13, instr_sess3_14, instr_sess2_14b, gen_trials['gen_c4_b1'], halfway, gen_trials['gen_c4_b2'], 
+instr_sess2_14c, if_attention_start, snap_trials['snap_c4_b2'], if_attention_end, 
+
+instr_sess2_15, learn_trials['learn_c5_b1'], rating_scream, learn_trials['learn_c5_b2'],rating_scream, 
+instr_sess2_16, gen_trials['gen_c5_b1'], halfway, gen_trials['gen_c5_b2'], 
+instr_sess2_14d, if_attention_start, snap_trials['snap_c5_b2'], if_attention_end, 
+
+instr_sess2_17, learn_trials['learn_c6_b1'], rating_scream, learn_trials['learn_c6_b2'],rating_scream, 
+instr_sess2_18, gen_trials['gen_c6_b1'], halfway, gen_trials['gen_c6_b2'],
+instr_sess2_14d, if_attention_start, snap_trials['snap_c6_b2'],if_attention_end, 
+
+instr_sess2_25, instr_sess2_26, final_comment_color, final_comment_transfer, identify_c44, identify_c33, identify_c22, identify_c55, final_comment, instruction_sess2_final, final_saving
+
+
+]
+
+//jsPsych.run(timeline);
+
+
+const consentForm = document.getElementById('consentForm');
+const headphoneCheck = document.getElementById('headphoneCheck');
+const continueBtn = document.getElementById('continueBtn');
+const startBtn = document.getElementById('startBtn');
+const form = document.querySelector('form');
+
+continueBtn.addEventListener('click', showHeadphoneCheck);
+startBtn.addEventListener('click', runHeadphoneCheck);
+
+      form.addEventListener('change', () => {
+        if (form.checkValidity()) {
+          continueBtn.disabled = false;
+        } else {
+          continueBtn.disabled = true;
+        }
+      });
+
+      function showHeadphoneCheck() {
+        // Hide the consent form and show the headphone check
+        consentForm.style.display = 'none';
+        headphoneCheck.style.display = 'block';
+      }
+
+
+      function runHeadphoneCheck() {
+      headphoneCheck.style.display = 'none';
+
+        // Create a new instance of the HeadphoneCheck class
+        $(document).on('hcHeadphoneCheckEnd', function(event, data) {
+          var headphoneCheckDidPass = data.didPass;
+          var headphoneCheckData = data.data;
+           console.log(headphoneCheckDidPass)
+          //var didPassMessage = function(){ if(headphoneCheckDidPass){return 'passed'}else {return 'failed'}}
+          var didPassMessage = headphoneCheckDidPass ? 'passed' : 'failed';
+          if (didPassMessage == 'failed') {
+          alert('Screening task ' + didPassMessage + '. It seems like you are not wearing headphones. You will be redirected to Prolific. If you think this was a mistake, please contact us.');
+          completion_code = 'failedHEADPHONE'
+          window.location.replace("https://app.prolific.co/submissions/complete?cc="+completion_code)
+          //redirect to Prolific
+          } else {
+            alert('Screening task ' + didPassMessage + '. We will now continue with the task instructions.') 
+            jsPsych.run(timeline);
+          }
+
+       
+        });
+
+        var headphoneCheckConfig = {};
+
+        // Start the headphone check
+        HeadphoneCheck.runHeadphoneCheck(headphoneCheckConfig);
+      }
+
+
+  </script>
+</html>

@@ -1,0 +1,5 @@
+PIDtestsaving='{"testsaving":{"id":"mjmwh1u8395qu2r","pid":"testsaving","schedule":7,"steps":{}}}'
+PIDnofix='{"nofix":{"id":"d60wjssasrule74","pid":"nofix","schedule":7,"steps":{"condition_5":38,"condition_12":63,"condition_6":63,"condition_3":88,"condition_9":63,"condition_4":88}}}'
+PIDnofix='{"nofix":{"id":"d60wjssasrule74","pid":"nofix","schedule":7,"steps":{"condition_5":20,"condition_12":14,"condition_6":14,"condition_3":20,"condition_9":16,"condition_4":22}}}'
+PIDnon='{"nofix":{"id":"d60wjssasrule74","pid":"nofix","schedule":7,"steps":{"condition_5":38,"condition_12":63,"condition_6":63,"condition_3":88,"condition_9":63,"condition_4":88}}}'
+PIDlala='{"lala":{"id":"d60wjssasrule74","pid":"lala","schedule":7,"steps":{"condition_5":18,"condition_12":14,"condition_6":14,"condition_3":18,"condition_9":14,"condition_4":18}}}'
